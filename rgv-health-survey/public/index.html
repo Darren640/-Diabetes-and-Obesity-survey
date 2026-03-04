@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RGV Health Survey</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div classes="container">
+    <h1>Rio Grande Valley Health Survey</h1>
+    
+    <div class="intro">
+         <p>
+            Hello I am a college student conducting a survey to better understand perspective on obesity and diabetes in the Rio Grande Valley, particularly among high school and college students. 
+            The purpose of this survey is to gather information about health awareness, lifestyle havits, and access to resources within the community.
+         </p>
+         <p>
+            Participation in this survey is completely voluntary. You may choose to stop at any time. 
+            The survey should take approximately five minutes to complete.
+         </p>  
+
+         <p>
+            Your respones will be used  solely for a course research project and will
+            not be shared publicly or used for any other purpose. All respones are anonymous.
+         </p>
+         <p><strong>Thank you for your time and participation.</strong></p>
+         
+    </div>
+
+    <form id="surveyForm" action="/submit" method="POST">
+      <!--Questions-->
+      <div class="questions">
+         <label>1.How serious is obesity in the RGV?</label>
+         <select name="q1" required>
+            <option value="">Select</option>
+            <option>Extremely serious</option>
+            <option>Very serious</option>
+            <option>Somewhat serious</option>
+            <option>Slightly serious</option>
+            <option>Not serious</option>
+            <option>Unsure</option>
+         </select>
+      </div>
+
+      <div class="questions">
+         <label>2. How serious is diabetes in the RGV?</label>
+         <select name="q2" required>
+            <option value="">Select</option>
+            <option>Extremely serious</option>
+            <option>Very serious</option>
+            <option>Somewhat serious</option>
+            <option>Slightly serious</option>
+            <option> Not serious</option>
+            <option>Unsure</option>
+         </select>
+      </div>
+
+      <div class="question">
+         <label>3. How often do you exercise per week?</label>
+         <select name="q3" required>
+            <option value="">Select</option>
+            <option>6-7 days</option>
+            <option>4-5</option>
+            <option>2-3</option>
+            <option>1 day</option>
+            <option>less than once</option>
+            <option>Never</option>
+         </select>
+
+      </div>
+      <div class="question">
+         <label>4. How often do you consume fast food?</label>
+         <select name="q4" required>
+            <option value="">Select</option>
+            <option>Daily</option>
+            <option>4-6 times per week</option>
+            <option>2-3 times per week</option>
+            <option>Once per week</option>
+            <option>Rarely</option>
+            <option>Never</option>
+         </select>
+      </div>
+
+      <!--Dulicate structure for remaining questions-->
+      <div class="question"><label>5. Access to healthy food?</label>
+         <select name="q5" required>
+            <option value="">Select</option>
+            <option> Very affordable</option>
+            <option>Somewhat affordable</option>
+            <option>Expensive</option>
+            <opton>Unsure</opton>
+         </select>
+      </div>
+
+      <div class="question"><label>6.Affordability of healthy food?</label>
+      <select name="q6" required>
+         <option value="">Select</option>
+         <option>Very affordable</option>
+         <option>Affordable</option>
+         <option>Somewhat affordable</option>
+         <option>Slightly influential</option>
+         <option>Not influential</option>
+         <option>Unsure</option>
+      </select>
+      </div>
+
+      <div class="question"><label>7. Family influnce on eating habits?</label>
+         <select name="q7" required>
+            <option value="">Select</option>
+            <option>Extremely influential</option>
+            <option>Very influential</option>
+            <option>Somewhat influential</option>
+            <option>Slightly influential</option>
+            <option>Not influential</option>
+            <option>Unsure</option>
+         </select>
+      </div>
+
+      <div class="question"><label>8. Cultural influence on food choices?</label>
+         <select name="q8" required>
+            <option value="">Select</option>
+            <option>Extremely influential</option>
+            <option>Very influential</option>
+            <option>Somewhat influential</option>
+            <option>Slightly influential</option>
+            <option>Not influential</option>
+            <option>Unsure</option>
+         </select>
+      </div>
+
+      <div class="question"><label>10. Sugary beverage consumption</label>
+         <select name="q10" required>
+            <option value="">Select</option>
+            <option>Multiple times daily</option>
+            <option>Once daily</option>
+            <option>Serval times weekly</option>
+            <option>Rarely</option>
+            <option>Never</option>
+         </select>
+      </div>
+
+      <button type="submit">Submit Survey</button>
+    </form>
+    
+    <p id="message"></p>
+   </div>
+   
+
+
+   </body>
+   </html>
