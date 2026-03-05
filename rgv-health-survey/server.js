@@ -7,7 +7,7 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.port || 5000;
 
-const ADMIN_PASSWORD = "rgvadmin123";
+const ADMIN_PASSWORD = "survey2026";
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
@@ -49,7 +49,7 @@ app.get("/responses", (req, res) => {
     const responses = JSON.parse(data);
 
     res.json(responses);
-}
+});
 
 app.listen(PORT, () => {
     console.log('Server running on port ${PORT}');
