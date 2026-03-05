@@ -7,6 +7,8 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.port || 5000;
 
+const ADMIN_PASSWORD = "rgvadmin123";
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 app.use(express.static(path.join(__dirname, "public")));
@@ -29,6 +31,25 @@ app.post("/submit", (req, res)  => {
 
     res.redirect("/thankyou.html");
 });
+
+app.get("/responses", (req, res) => {
+    const password = req.query.password;
+
+    if (password !== ADMIN_PASSWORD) {
+        return res.send("Acess denied. Incorrect password.");
+    }
+
+    const filePath = path.join(__dirname, "responses.json");
+
+    if (!fs.existsSync(filePath)) {
+        return res.json([]);
+    }
+
+    const data = fs.readFileSync(filePath);
+    const responses = JSON.parse(data);
+
+    res.json(responses);
+}
 
 app.listen(PORT, () => {
     console.log('Server running on port ${PORT}');
