@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Survey Responses</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #333;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Survey Responses</h1>
+
+    <table id="responsesTable">
+      <thead>
+            <tr id="tableHead"></tr>
+      </thead>  
+    </table>
+    <tbody id="tableBody"></tbody>
+    </table>
+
+    <script>
+        async function loadResonses() {
+            const res = await fetch("/responses?password=survey2026");
+            const data = await res.json();
+
+            const head = document.getElementById("tableHead");
+            const body = document.getElementById("tableBody");
+
+           if (data.length === 0) {
+            body.innerHTML = "<tr><td>No responses yet</td></tr>";
+            return;
+           }
+
+           const keys = Object.keys(data[0]);
+           keys.forEach(key => {
+            const th = document.createElement("th");
+            th.textContent = key.toUpperCase();
+            head.appendChild(th);
+           });
+
+           data.forEach(response => {
+            const tr = document.createElement("tr");
+            keys.forEach(key => {
+            const td = document.createElement("td");    
+            td.textContent = response[key];
+            tr.appendChild(td);
+           });
+
+           body.appendChild(tr);
+         });
+        }
+
+        loadResonses();
+    </script>
+    
+</body>    
+</html>
