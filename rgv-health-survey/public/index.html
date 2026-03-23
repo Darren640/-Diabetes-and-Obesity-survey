@@ -28,7 +28,7 @@
          
     </div>
 
-    <form id="surveyForm" action="/submit" method="POST">
+    <form id="surveyForm">
       <!--Questions-->
       <div class="questions">
          <label>1.How serious is obesity in the RGV?</label>
@@ -146,6 +146,29 @@
     <p id="message"></p>
    </div>
    
+   <script type="module">
+      import  { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasedjs/10.12.0/firebase-firestore.js";
+      const firebaseConfig = {
+         apiKey: "YOUR_KEY",
+         authDomain: "YOUR_PROJECT.firebaseapp.com",
+         projectId: "YOUR_PROJECT_ID"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      document.getElementById("surveyForm").addEventListener("sumbit", async (e) =>  {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            await addDoc(collection(db, "responses"),  data);
+
+            window.location.href = "/thank.html";
+      });
+   </script>
 
 
    </body>

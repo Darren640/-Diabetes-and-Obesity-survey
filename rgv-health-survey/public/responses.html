@@ -11,22 +11,29 @@
 
     <script> src= "https://cdn.jsdeliver.net/npm/chart.js"</script>
 
-    <script>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasedjs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasedjs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "YOUR_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
         async function loadChart() {
-            const password = prompt("Enter admin password:");
-            const res = await fetch(`/responses?password=${password}`);
-            
-            if(!res.ok) {
-                document.body.innerHTML= "<h2>Access denied</h2>";
-                return;
-            }
-            const data = await res.json();
+            const container = document.getElementById("chartsContainer");
+
+            const snapshot = await getDocs(collection(db, "responses"));
+            const data = snapshot.docs.map(doc => doc.data());
 
             if( data.length ===0 ) {
                 document.body.innerHTML = "<h2>No responses yet</h2>";
                 return;
             }
-            const container  = document.getElementById("chartsContainer");
             //get all question keys
             const keys = Object.keys(data[0]);
 
