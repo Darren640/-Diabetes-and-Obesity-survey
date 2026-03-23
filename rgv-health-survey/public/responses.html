@@ -1,91 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Survey Responses</title>
-    <style>
-        body {
-            font-family: Arial;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        h1 {
-            text-align: center;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #333;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-    </style>
+    <title>Survey results</title>
+    <script src="https://cdn.jsdeliver.net/npm/chart.js"></script>
 </head>
 <body>
 
-    <h1>Survey Responses</h1>
-
-    <table id="responsesTable">
-      <thead>
-            <tr id="tableHead"></tr>
-      </thead>  
-    </table>
-    <tbody id="tableBody"></tbody>
-    </table>
-
+    <h1>Survey results (pie chart)</h1>
+    <canvas id=""myChart" width="400" height="400"></canvas>
     <script>
-        async function loadResonses() {
+        async function loadChart() {
             const password = prompt("Enter admin password:");
-            if(!password) {
-                document.body.innerHTML = "<h2>Access denied</h2>";
-                return;
-            }
             const res = await fetch(`/responses?password=${password}`);
-            if (!res.ok) {
-                document.body.innerHTML = "<h2>Access denied</h2>";
+            
+            if(!res.ok) {
+                document.body.innerHTML= "<h2>Access denied</h2>";
                 return;
             }
             const data = await res.json();
 
-            const head = document.getElementById("tableHead");
-            const body = document.getElementById("tableBody");
+            if( data.length ===0 ) {
+                document.body.innerHTML = "<h2>No responses yet</h2>";
+                return;
+            }
+            const container  = document.getElementById("chartsContainer");
+            //get all question keys
+            const keys = Object.keys(data[0]);
 
-           if (data.length === 0) {
-            body.innerHTML = "<tr><td>No responses yet</td></tr>";
-            return;
-           }
+            keys.forEach(key =>{
+                const counts = {};
 
-           const keys = Object.keys(data[0]);
-           
-           keys.forEach(key => {
-            const th = document.createElement("th");
-            th.textContent = key.toUpperCase();
-            head.appendChild(th);
-           });
+                //count answers for this question
+                data.forEach(respone => {
+                    const answer = respone[key];
+                    counts[answer] = (counts[answer] || 0) + 1;
+                });
+                const labels = Object.keys(counts);
+                const values = Object.values(counts);
+                //create title
+                const title = document.create.Element("h3");
+                title.textContent = key;
+                container.appendChild(title);
 
-           data.forEach(response => {
-            const tr = document.createElement("tr");
-            keys.forEach(key => {
-            const td = document.createElement("td");    
-            td.textContent = response[key];
-            tr.appendChild(td);
-           });
+                //create canvas
+                const canvas = document.createElement("canvas");
+                container.appendChild(canvas);
 
-           body.appendChild(tr);
-         });
+                // create chart
+                new Chart(canvas, {
+                    type: "pie",
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values
+                        }]
+                    }
+                });
+            });
         }
 
-        loadResonses();
+    loadChart();
     </script>
-    
-</body>    
+</body>
 </html>
