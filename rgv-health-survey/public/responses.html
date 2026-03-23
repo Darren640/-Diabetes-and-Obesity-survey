@@ -44,7 +44,16 @@
 
     <script>
         async function loadResonses() {
-            const res = await fetch("/responses?password=survey2026");
+            const password = prompt("Enter admin password:");
+            if(!password) {
+                document.body.innerHTML = "<h2>Access denied</h2>";
+                return;
+            }
+            const res = await fetch(`/responses?password=${password}`);
+            if (!res.ok) {
+                document.body.innerHTML = "<h2>Access denied</h2>";
+                return;
+            }
             const data = await res.json();
 
             const head = document.getElementById("tableHead");
@@ -56,6 +65,7 @@
            }
 
            const keys = Object.keys(data[0]);
+           
            keys.forEach(key => {
             const th = document.createElement("th");
             th.textContent = key.toUpperCase();
