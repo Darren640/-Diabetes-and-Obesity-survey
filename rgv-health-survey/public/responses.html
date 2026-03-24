@@ -42,8 +42,36 @@
 </head>
 <body>
 
-    <h1>Survey results (pie chart)</h1>
-    <p id="statusText">Loading chart data…</p>
+    <h1>Survey Results</h1>
+    <p id="statusText">Loading survey data…</p>
+
+    <!-- Individual Responses Table -->
+    <h2>All Individual Responses</h2>
+    <div id="responsesTableContainer">
+        <table id="responsesTable" style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
+            <thead>
+                <tr style="background-color: #f5f5f5;">
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Response #</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Q1: Obesity Seriousness</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Q2: Diabetes Seriousness</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Q3: Exercise Frequency</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Q4: Fast Food Consumption</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Q5: Healthy Food Access</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Q6: Healthy Food Affordability</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Q7: Family Influence</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Q8: Cultural Influence</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Q9: Fruit/Veggie Consumption</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Q10: Sugary Beverages</th>
+                </tr>
+            </thead>
+            <tbody id="responsesTableBody">
+                <!-- Individual responses will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Aggregated Charts -->
+    <h2>Aggregated Results (Pie Charts)</h2>
     <div id="chartsContainer"></div>
 
     <script>
@@ -107,7 +135,34 @@
                     return;
                 }
 
-                statusText.textContent = `Loaded ${data.length} responses. Creating charts for ${Object.keys(data[0]).length} questions...`;
+                statusText.textContent = `Loaded ${data.length} responses. Creating table and charts...`;
+
+                // Populate individual responses table
+                const tableBody = document.getElementById("responsesTableBody");
+                tableBody.innerHTML = ""; // Clear existing rows
+
+                data.forEach((response, index) => {
+                    const row = document.createElement("tr");
+                    row.style.backgroundColor = index % 2 === 0 ? "#ffffff" : "#f9f9f9";
+
+                    // Response number
+                    const numberCell = document.createElement("td");
+                    numberCell.style.border = "1px solid #ddd";
+                    numberCell.style.padding = "8px";
+                    numberCell.textContent = index + 1;
+                    row.appendChild(numberCell);
+
+                    // Add cells for each question
+                    ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10"].forEach(q => {
+                        const cell = document.createElement("td");
+                        cell.style.border = "1px solid #ddd";
+                        cell.style.padding = "8px";
+                        cell.textContent = response[q] || "(no answer)";
+                        row.appendChild(cell);
+                    });
+
+                    tableBody.appendChild(row);
+                });
 
                 const keys = Object.keys(data[0]);
                 logDebug("Question keys:", keys);
