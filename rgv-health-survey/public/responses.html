@@ -2,17 +2,20 @@
 <html>
 <head>
     <title>Survey results</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
     <style>
-      #chartsContainer {
-        display: grid;
-        gap: 24px;
+      body { font-family: Arial, sans-serif; margin: 20px; }
+      #chartsContainer { margin-top: 20px; }
+      section {
+        margin-bottom: 30px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #f9f9f9;
       }
-      #chartsContainer canvas {
-        width: 100% !important;
-        max-width: 600px;
-        min-height: 320px;
-      }
+      h3 { margin-top: 0; color: #333; }
+      canvas { max-width: 100%; height: auto; }
+      #statusText { color: #666; font-style: italic; }
     </style>
 </head>
 <body>
@@ -27,30 +30,59 @@
         if (ENABLE_DEBUG) console.log(...args);
       }
 
+      // Wait for Chart.js to load
+      function waitForChartJS() {
+        return new Promise((resolve) => {
+          if (typeof Chart !== 'undefined') {
+            resolve();
+          } else {
+            const check = () => {
+              if (typeof Chart !== 'undefined') {
+                resolve();
+              } else {
+                setTimeout(check, 100);
+              }
+            };
+            check();
+          }
+        });
+      }
+
         async function loadChart() {
             const container = document.getElementById("chartsContainer");
-            container.innerHTML = ""; // reset before render
+            const statusText = document.getElementById("statusText");
 
             try {
+                // Wait for Chart.js to be available
+                await waitForChartJS();
+                logDebug("Chart.js loaded successfully");
+
+                statusText.textContent = "Loading survey data...";
                 const resp = await fetch("/responses?password=survey2026");
                 if (!resp.ok) {
                     throw new Error(`Could not load responses: ${resp.status}`);
                 }
                 const data = await resp.json();
+                logDebug("Data loaded:", data);
 
-                const statusText = document.getElementById("statusText");
                 if (!Array.isArray(data) || data.length === 0) {
                     statusText.textContent = "No responses yet";
                     container.innerHTML = "";
                     return;
                 }
 
-                statusText.textContent = `Loaded ${data.length} responses. Rendering ${Object.keys(data[0]).length} charts...`;
+                statusText.textContent = `Loaded ${data.length} responses. Creating charts for ${Object.keys(data[0]).length} questions...`;
 
                 const keys = Object.keys(data[0]);
+                logDebug("Question keys:", keys);
 
-                keys.forEach(key => {
+                // Clear container and create charts
+                container.innerHTML = "";
+
+                keys.forEach((key, index) => {
                     try {
+                        logDebug(`Processing question ${key}`);
+
                         const counts = {};
                         data.forEach(entry => {
                             const answer = entry[key] || "(no answer)";
@@ -60,50 +92,76 @@
                         const labels = Object.keys(counts);
                         const values = Object.values(counts);
 
+                        logDebug(`Question ${key} - labels:`, labels, "values:", values);
+
                         const section = document.createElement("section");
-                        section.style.padding = "10px";
-                        section.style.marginBottom = "16px";
-                        section.style.border = "1px solid #ececec";
-                        section.style.borderRadius = "6px";
+                        section.style.padding = "15px";
+                        section.style.marginBottom = "20px";
+                        section.style.border = "1px solid #ddd";
+                        section.style.borderRadius = "8px";
+                        section.style.backgroundColor = "#f9f9f9";
 
                         const title = document.createElement("h3");
-                        title.textContent = `${key} (question)`;
+                        title.textContent = `Question ${key}`;
+                        title.style.marginTop = "0";
+                        title.style.color = "#333";
                         section.appendChild(title);
 
                         const canvas = document.createElement("canvas");
                         canvas.id = `chart-${key}`;
-                        canvas.width = 640;
-                        canvas.height = 360;
+                        canvas.width = 600;
+                        canvas.height = 400;
+                        canvas.style.maxWidth = "100%";
+                        canvas.style.height = "auto";
                         section.appendChild(canvas);
 
                         container.appendChild(section);
 
-
-                        new Chart(canvas.getContext("2d"), {
+                        // Create chart with error handling
+                        const ctx = canvas.getContext("2d");
+                        const chart = new Chart(ctx, {
                             type: "pie",
                             data: {
                                 labels,
                                 datasets: [{
                                     data: values,
-                                    backgroundColor: labels.map((_, i) => `hsl(${(i * 45) % 360}, 70%, 60%)`)
+                                    backgroundColor: labels.map((_, i) => `hsl(${(i * 45) % 360}, 70%, 60%)`),
+                                    borderWidth: 1,
+                                    borderColor: '#fff'
                                 }]
                             },
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                    }
+                                }
                             }
                         });
+
+                        logDebug(`Chart created for ${key}`);
+
                     } catch (chartErr) {
-                        console.error(`chart render error for ${key}:`, chartErr);
+                        console.error(`Chart render error for ${key}:`, chartErr);
+                        const errorSection = document.createElement("section");
+                        errorSection.innerHTML = `<h3>Question ${key}</h3><p style="color: red;">Error creating chart: ${chartErr.message}</p>`;
+                        container.appendChild(errorSection);
                     }
                 });
+
+                statusText.textContent = `✅ Complete! Showing ${keys.length} charts from ${data.length} responses.`;
+
             } catch (err) {
-                container.innerHTML = `<h2>Error loading responses: ${err.message}</h2>`;
-                console.error(err);
+                statusText.textContent = `❌ Error: ${err.message}`;
+                container.innerHTML = `<h2>Error loading responses</h2><p>${err.message}</p>`;
+                console.error("Load error:", err);
             }
         }
 
-        loadChart();
+        // Start loading when page loads
+        document.addEventListener('DOMContentLoaded', loadChart);
     </script>
 </body>
 </html>
