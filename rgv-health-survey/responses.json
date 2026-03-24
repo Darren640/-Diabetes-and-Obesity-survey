@@ -10,5 +10,41 @@
     "q8": "Extremely influential",
     "q9": "Once daily",
     "q10": "Once daily"
+  },
+  {
+    "q1": "Very serious",
+    "q2": "Very serious",
+    "q3": "4-5 days",
+    "q4": "Once per week",
+    "q5": "Somewhat accessible",
+    "q6": "Somewhat affordable",
+    "q7": "Very influential",
+    "q8": "Somewhat influential",
+    "q9": "Several times weekly",
+    "q10": "Rarely"
+  },
+  {
+    "q1": "Somewhat serious",
+    "q2": "Somewhat serious",
+    "q3": "1 day",
+    "q4": "4-6 times per week",
+    "q5": "Very accessible",
+    "q6": "Very affordable",
+    "q7": "Somewhat influential",
+    "q8": "Not influential",
+    "q9": "Multiple times daily",
+    "q10": "Once daily"
+  },
+  {
+    "q1": "Not serious",
+    "q2": "Slightly serious",
+    "q3": "Never",
+    "q4": "Daily",
+    "q5": "Not accessible",
+    "q6": "Not affordable",
+    "q7": "Slightly influential",
+    "q8": "Very influential",
+    "q9": "Rarely",
+    "q10": "Multiple times daily"
   }
 ]
