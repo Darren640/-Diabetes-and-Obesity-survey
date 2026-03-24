@@ -9,68 +9,63 @@
     <h1>Survey results (pie chart)</h1>
     <div id="chartsContainer"></div>
 
-    <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyDvmz2S5WrvvHxJtN0c-1qaCHOyOAUBIm8",  
-         authDomain: "diabetes-and-obesity-project.firebaseapp.com",
-         projectId: "diabetes-and-obesity-project",
-         StorageBucket: "diabetes-and-obesity-project.appspot.com",
-         messageSenderId: "666182693245",
-         appId: "1:666182693245:web:867fbd1221565471141c14",
-         measurementId: "G-JYYP26ZFSB"};
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
+    <script>
         async function loadChart() {
             const container = document.getElementById("chartsContainer");
 
-            const snapshot = await getDocs(collection(db, "responses"));
-            const data = snapshot.docs.map(doc => doc.data());
+            try {
+                const resp = await fetch("/responses?password=survey2026");
+                if (!resp.ok) {
+                    throw new Error(`Could not load responses: ${resp.status}`);
+                }
+                const data = await resp.json();
 
-            if( data.length ===0 ) {
-                document.body.innerHTML = "<h2>No responses yet</h2>";
-                return;
+                if (!Array.isArray(data) || data.length === 0) {
+                    container.innerHTML = "<h2>No responses yet</h2>";
+                    return;
+                }
+
+                const keys = Object.keys(data[0]);
+
+                keys.forEach(key => {
+                    const counts = {};
+                    data.forEach(entry => {
+                        const answer = entry[key] || "(no answer)";
+                        counts[answer] = (counts[answer] || 0) + 1;
+                    });
+
+                    const labels = Object.keys(counts);
+                    const values = Object.values(counts);
+
+                    const title = document.createElement("h3");
+                    title.textContent = key;
+                    container.appendChild(title);
+
+                    const canvas = document.createElement("canvas");
+                    container.appendChild(canvas);
+
+                    new Chart(canvas.getContext("2d"), {
+                        type: "pie",
+                        data: {
+                            labels,
+                            datasets: [{
+                                data: values,
+                                backgroundColor: labels.map((_, i) => `hsl(${(i*45)%360}, 70%, 60%)`)
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                        }
+                    });
+                });
+            } catch (err) {
+                container.innerHTML = `<h2>Error loading responses: ${err.message}</h2>`;
+                console.error(err);
             }
-            //get all question keys
-            const keys = Object.keys(data[0]);
-
-            keys.forEach(key =>{
-                const counts = {};
-
-                //count answers for this question
-                data.forEach(respone => {
-                    const answer = respone[key];
-                    counts[answer] = (counts[answer] || 0) + 1;
-                });
-                const labels = Object.keys(counts);
-                const values = Object.values(counts);
-                //create title
-                const title = document.createElement("h3");
-                title.textContent = key;
-                container.appendChild(title);
-
-                //create canvas
-                const canvas = document.createElement("canvas");
-                container.appendChild(canvas);
-
-                // create chart
-                new Chart(canvas, {
-                    type: "pie",
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: values
-                        }]
-                    }
-                });
-            });
         }
 
-    loadChart();
+        loadChart();
     </script>
 </body>
 </html>
