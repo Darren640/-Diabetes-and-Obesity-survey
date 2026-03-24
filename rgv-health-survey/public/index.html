@@ -162,7 +162,7 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      document.getElementById("surveyForm").addEventListener("sumbit", async (e) =>  {
+      document.getElementById("surveyForm").addEventListener("submit", async (e) =>  {
             e.preventDefault();
 
             const formData = new FormData(e.target);
