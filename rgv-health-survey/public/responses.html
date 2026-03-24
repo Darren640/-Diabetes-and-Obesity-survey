@@ -3,15 +3,33 @@
 <head>
     <title>Survey results</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      #chartsContainer {
+        display: grid;
+        gap: 24px;
+      }
+      #chartsContainer canvas {
+        width: 100% !important;
+        max-width: 600px;
+        min-height: 320px;
+      }
+    </style>
 </head>
 <body>
 
     <h1>Survey results (pie chart)</h1>
+    <p id="statusText">Loading chart data…</p>
     <div id="chartsContainer"></div>
 
     <script>
+      const ENABLE_DEBUG = true;
+      function logDebug(...args) {
+        if (ENABLE_DEBUG) console.log(...args);
+      }
+
         async function loadChart() {
             const container = document.getElementById("chartsContainer");
+            container.innerHTML = ""; // reset before render
 
             try {
                 const resp = await fetch("/responses?password=survey2026");
@@ -20,44 +38,64 @@
                 }
                 const data = await resp.json();
 
+                const statusText = document.getElementById("statusText");
                 if (!Array.isArray(data) || data.length === 0) {
-                    container.innerHTML = "<h2>No responses yet</h2>";
+                    statusText.textContent = "No responses yet";
+                    container.innerHTML = "";
                     return;
                 }
+
+                statusText.textContent = `Loaded ${data.length} responses. Rendering ${Object.keys(data[0]).length} charts...`;
 
                 const keys = Object.keys(data[0]);
 
                 keys.forEach(key => {
-                    const counts = {};
-                    data.forEach(entry => {
-                        const answer = entry[key] || "(no answer)";
-                        counts[answer] = (counts[answer] || 0) + 1;
-                    });
+                    try {
+                        const counts = {};
+                        data.forEach(entry => {
+                            const answer = entry[key] || "(no answer)";
+                            counts[answer] = (counts[answer] || 0) + 1;
+                        });
 
-                    const labels = Object.keys(counts);
-                    const values = Object.values(counts);
+                        const labels = Object.keys(counts);
+                        const values = Object.values(counts);
 
-                    const title = document.createElement("h3");
-                    title.textContent = key;
-                    container.appendChild(title);
+                        const section = document.createElement("section");
+                        section.style.padding = "10px";
+                        section.style.marginBottom = "16px";
+                        section.style.border = "1px solid #ececec";
+                        section.style.borderRadius = "6px";
 
-                    const canvas = document.createElement("canvas");
-                    container.appendChild(canvas);
+                        const title = document.createElement("h3");
+                        title.textContent = `${key} (question)`;
+                        section.appendChild(title);
 
-                    new Chart(canvas.getContext("2d"), {
-                        type: "pie",
-                        data: {
-                            labels,
-                            datasets: [{
-                                data: values,
-                                backgroundColor: labels.map((_, i) => `hsl(${(i*45)%360}, 70%, 60%)`)
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                        }
-                    });
+                        const canvas = document.createElement("canvas");
+                        canvas.id = `chart-${key}`;
+                        canvas.width = 640;
+                        canvas.height = 360;
+                        section.appendChild(canvas);
+
+                        container.appendChild(section);
+
+
+                        new Chart(canvas.getContext("2d"), {
+                            type: "pie",
+                            data: {
+                                labels,
+                                datasets: [{
+                                    data: values,
+                                    backgroundColor: labels.map((_, i) => `hsl(${(i * 45) % 360}, 70%, 60%)`)
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                            }
+                        });
+                    } catch (chartErr) {
+                        console.error(`chart render error for ${key}:`, chartErr);
+                    }
                 });
             } catch (err) {
                 container.innerHTML = `<h2>Error loading responses: ${err.message}</h2>`;
