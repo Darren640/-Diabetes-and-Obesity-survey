@@ -74,11 +74,27 @@
     <h2>Aggregated Results (Pie Charts)</h2>
     <div id="chartsContainer"></div>
 
-    <script>
+    <script type="module">
       const ENABLE_DEBUG = true;
       function logDebug(...args) {
         if (ENABLE_DEBUG) console.log(...args);
       }
+
+      // Firebase imports and config
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+         apiKey: "AIzaSyDvmz2S5WrvvHxJtN0c-1qaCHOyOAUBIm8",
+         authDomain: "diabetes-and-obesity-project.firebaseapp.com",
+         projectId: "diabetes-and-obesity-project",
+         StorageBucket: "diabetes-and-obesity-project.appspot.com",
+         messageSenderId: "666182693245",
+         appId: "1:666182693245:web:867fbd1221565471141c14",
+         measurementId: "G-JYYP26ZFSB"};
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
 
       // Question labels mapping
       const questionLabels = {
@@ -121,13 +137,13 @@
                 await waitForChartJS();
                 logDebug("Chart.js loaded successfully");
 
-                statusText.textContent = "Loading survey data...";
-                const resp = await fetch("/responses?password=survey2026");
-                if (!resp.ok) {
-                    throw new Error(`Could not load responses: ${resp.status}`);
-                }
-                const data = await resp.json();
-                logDebug("Data loaded:", data);
+                statusText.textContent = "Loading survey data from Firebase...";
+
+                // Fetch data from Firebase instead of local server
+                const snapshot = await getDocs(collection(db, "responses"));
+                const data = snapshot.docs.map(doc => doc.data());
+
+                logDebug("Data loaded from Firebase:", data);
 
                 if (!Array.isArray(data) || data.length === 0) {
                     statusText.textContent = "No responses yet";
@@ -135,7 +151,7 @@
                     return;
                 }
 
-                statusText.textContent = `Loaded ${data.length} responses. Creating table and charts...`;
+                statusText.textContent = `Loaded ${data.length} responses from Firebase. Creating table and charts...`;
 
                 // Populate individual responses table
                 const tableBody = document.getElementById("responsesTableBody");
@@ -265,7 +281,7 @@
                     }
                 });
 
-                statusText.textContent = `✅ Complete! Showing ${keys.length} charts from ${data.length} responses.`;
+                statusText.textContent = `✅ Complete! Showing ${keys.length} charts from ${data.length} responses in Firebase.`;
 
             } catch (err) {
                 statusText.textContent = `❌ Error: ${err.message}`;
