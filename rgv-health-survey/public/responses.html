@@ -12,10 +12,32 @@
         border: 1px solid #ddd;
         border-radius: 8px;
         background: #f9f9f9;
+        min-height: 450px; /* Reserve space to prevent layout shifts */
+      }
+      .chart-container {
+        position: relative;
+        width: 100%;
+        height: 400px; /* Fixed height to prevent jumping */
+        margin: 10px 0;
       }
       h3 { margin-top: 0; color: #333; }
-      canvas { max-width: 100%; height: auto; }
+      canvas {
+        max-width: 100%;
+        height: 100% !important; /* Fill the container */
+        display: block; /* Prevent inline spacing issues */
+      }
       #statusText { color: #666; font-style: italic; }
+      .loading-placeholder {
+        width: 100%;
+        height: 400px;
+        background: #f0f0f0;
+        border: 2px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        font-style: italic;
+      }
     </style>
 </head>
 <body>
@@ -90,9 +112,41 @@
                 const keys = Object.keys(data[0]);
                 logDebug("Question keys:", keys);
 
-                // Clear container and create charts
+                // Clear container and create placeholders first to prevent layout shifts
                 container.innerHTML = "";
 
+                // Create placeholders first to prevent layout shifts
+                keys.forEach((key, index) => {
+                    const section = document.createElement("section");
+                    section.style.padding = "15px";
+                    section.style.marginBottom = "20px";
+                    section.style.border = "1px solid #ddd";
+                    section.style.borderRadius = "8px";
+                    section.style.backgroundColor = "#f9f9f9";
+
+                    const title = document.createElement("h3");
+                    title.textContent = questionLabels[key] || `Question ${key}`;
+                    title.style.marginTop = "0";
+                    title.style.color = "#333";
+                    title.style.fontSize = "16px";
+                    title.style.fontWeight = "bold";
+                    section.appendChild(title);
+
+                    // Create chart container with fixed dimensions
+                    const chartContainer = document.createElement("div");
+                    chartContainer.className = "chart-container";
+
+                    // Add loading placeholder
+                    const placeholder = document.createElement("div");
+                    placeholder.className = "loading-placeholder";
+                    placeholder.textContent = "Loading chart...";
+                    chartContainer.appendChild(placeholder);
+
+                    section.appendChild(chartContainer);
+                    container.appendChild(section);
+                });
+
+                // Now render charts (this will replace placeholders)
                 keys.forEach((key, index) => {
                     try {
                         logDebug(`Processing question ${key}`);
@@ -108,30 +162,18 @@
 
                         logDebug(`Question ${key} - labels:`, labels, "values:", values);
 
-                        const section = document.createElement("section");
-                        section.style.padding = "15px";
-                        section.style.marginBottom = "20px";
-                        section.style.border = "1px solid #ddd";
-                        section.style.borderRadius = "8px";
-                        section.style.backgroundColor = "#f9f9f9";
+                        // Find the chart container for this question
+                        const sections = container.querySelectorAll("section");
+                        const chartContainer = sections[index].querySelector(".chart-container");
 
-                        const title = document.createElement("h3");
-                        title.textContent = questionLabels[key] || `Question ${key}`;
-                        title.style.marginTop = "0";
-                        title.style.color = "#333";
-                        title.style.fontSize = "16px";
-                        title.style.fontWeight = "bold";
-                        section.appendChild(title);
-
+                        // Clear placeholder and add canvas
+                        chartContainer.innerHTML = "";
                         const canvas = document.createElement("canvas");
                         canvas.id = `chart-${key}`;
-                        canvas.width = 600;
-                        canvas.height = 400;
-                        canvas.style.maxWidth = "100%";
-                        canvas.style.height = "auto";
-                        section.appendChild(canvas);
-
-                        container.appendChild(section);
+                        canvas.style.width = "100%";
+                        canvas.style.height = "100%";
+                        canvas.style.display = "block";
+                        chartContainer.appendChild(canvas);
 
                         // Create chart with error handling
                         const ctx = canvas.getContext("2d");
@@ -162,9 +204,9 @@
 
                     } catch (chartErr) {
                         console.error(`Chart render error for ${key}:`, chartErr);
-                        const errorSection = document.createElement("section");
-                        errorSection.innerHTML = `<h3>Question ${key}</h3><p style="color: red;">Error creating chart: ${chartErr.message}</p>`;
-                        container.appendChild(errorSection);
+                        const sections = container.querySelectorAll("section");
+                        const chartContainer = sections[index].querySelector(".chart-container");
+                        chartContainer.innerHTML = `<div style="color: red; padding: 20px;">Error creating chart: ${chartErr.message}</div>`;
                     }
                 });
 
