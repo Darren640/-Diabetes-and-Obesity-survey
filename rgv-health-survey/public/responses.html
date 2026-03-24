@@ -30,6 +30,20 @@
         if (ENABLE_DEBUG) console.log(...args);
       }
 
+      // Question labels mapping
+      const questionLabels = {
+        q1: "How serious is obesity in the RGV?",
+        q2: "How serious is diabetes in the RGV?",
+        q3: "How often do you exercise per week?",
+        q4: "How often do you consume fast food?",
+        q5: "Access to healthy food?",
+        q6: "Affordability of healthy food?",
+        q7: "Family influence on eating habits?",
+        q8: "Cultural influence on food choices?",
+        q9: "How often do you consume fruits and vegetables?",
+        q10: "Sugary beverage consumption"
+      };
+
       // Wait for Chart.js to load
       function waitForChartJS() {
         return new Promise((resolve) => {
@@ -102,9 +116,11 @@
                         section.style.backgroundColor = "#f9f9f9";
 
                         const title = document.createElement("h3");
-                        title.textContent = `Question ${key}`;
+                        title.textContent = questionLabels[key] || `Question ${key}`;
                         title.style.marginTop = "0";
                         title.style.color = "#333";
+                        title.style.fontSize = "16px";
+                        title.style.fontWeight = "bold";
                         section.appendChild(title);
 
                         const canvas = document.createElement("canvas");
@@ -133,6 +149,7 @@
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: false,
+                                animation: false, // Disable animations to keep charts still
                                 plugins: {
                                     legend: {
                                         position: 'bottom',
