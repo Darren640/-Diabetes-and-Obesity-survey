@@ -36,7 +36,7 @@ app.get("/responses", (req, res) => {
     const password = req.query.password;
 
     if (password !== ADMIN_PASSWORD) {
-        return res.send("Acess denied. Incorrect password.");
+        return res.send("Access denied. Incorrect password.");
     }
 
     const filePath = path.join(__dirname, "responses.json");
